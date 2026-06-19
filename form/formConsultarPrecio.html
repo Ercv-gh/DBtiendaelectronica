@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Precio</title>
+    <link rel="stylesheet" href="../css/style.css">
+
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <h1>🖥️ ElectroStore</h1>
+        <p>Tu tienda de tecnología y electrónica de confianza</p>
+    </header>
+
+    <!-- NAV -->
+    <nav>
+        <ul>
+            <li><a href="../index.html">Inicio</a></li>
+            <li><a href="formRegistro.html">Registro</a></li>
+            <li><a href="formConsultarPrecio.html">Consultar Precio</a></li>
+            <li><a href="formDarDeBaja.html">Dar de Baja</a></li>
+            <li><a href="formActualizarPrecio.html">Actualizar Precio</a></li>
+        </ul>
+
+    </nav>
+    <!-- CONTENIDO -->
+    <main>
+        <form id="formularioConsultaPrecio" action="../php/recibirConsultarPrecio.php" method="post">
+            <div class="tituloFormulario">
+                <h2>💰 Consultar Precio</h2>
+                <p>Busca un producto para conocer su precio actual</p> 
+            </div>
+
+            <div class="grupoFormulario">
+                <label for="id">Código del producto</label>
+                <input type="number" name="fid" id="id" placeholder="Introduce el código del producto" min="1" required/>
+            </div>
+
+            <input type="submit" value="🔍 Consultar Precio">
+        </form>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 ElectroStore</p>
+
+        <p>Gestión de Productos Electrónicos</p>
+    </footer>
+
+</body>
+</html>
