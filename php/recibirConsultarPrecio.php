@@ -1,4 +1,13 @@
-<?php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recibir Consulta Precio</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <?php
 // mysqli_report(MYSQLI_REPORT_OFF);
 //  /** @var mysqli $conexion*/
 // //conectarse a la red
@@ -39,13 +48,63 @@ echo "<main>";
 if($reg = mysqli_fetch_array($registro)){
 echo "<div class='resultadoPrecio'>";
         echo "<h2>🔍 Producto encontrado</h2>";
-        echo "<div class='card'>";
-            echo "<h3>".$reg['nom']."</h3>";
-            echo "<p><strong>Código:</strong> ".$reg['codi']."</p>";
-            echo "<p><strong>Categoría:</strong> ".$reg['categoria']."</p>";
-            echo "<p><strong>Marca:</strong> ".$reg['marca']."</p>";
-            echo "<p><strong>Precio:</strong> ".$reg['preu']." €</p>";
-        echo "</div>";
+echo "<form action='actualizarProducto.php' method='post'>";
+
+    echo "<input type='hidden' name='fcodi' value='".$reg['codi']."'>";
+
+    echo "<div class='grupoFormulario'>";
+        echo "<label>Nombre</label>";
+        echo "<input
+                type='text'
+                name='fnom'
+                value='".$reg['nom']."'
+                readonly>";
+    echo "</div>";
+
+    echo "<div class='grupoFormulario'>";
+        echo "<label>Categoría</label>";
+        echo "<input
+                type='text'
+                name='fcategoria'
+                value='".$reg['categoria']."'
+                readonly>";
+    echo "</div>";
+
+    echo "<div class='grupoFormulario'>";
+        echo "<label>Marca</label>";
+        echo "<input
+                type='text'
+                name='fmarca'
+                value='".$reg['marca']."'
+                readonly>";
+    echo "</div>";
+
+    echo "<div class='grupoFormulario'>";
+        echo "<label>Precio (€)</label>";
+        echo "<input
+                id='precio'
+                type='number'
+                step='0.01'
+                name='fpreu'
+                value='".$reg['preu']."'
+                readonly>";
+    echo "</div>";
+
+    echo "<button
+            type='button'
+            id='btnEditar'
+            onclick='activarEdicion()'>
+            ✏️ Editar
+          </button>";
+
+    echo "<button
+            type='submit'
+            id='btnGuardar'
+            style='display:none'>
+            💾 Guardar cambios
+          </button>";
+
+echo "</form>";
     echo "</div>";
 }
 else{
@@ -59,3 +118,18 @@ else{
 echo "</main>";
 mysqli_close($conexion);
 ?>
+<script>
+function activarEdicion(){
+    document.getElementById("nom").readOnly = false;
+    document.getElementById("categoria").readOnly = false;
+    document.getElementById("marca").readOnly = false;
+    document.getElementById("precio").readOnly = false;
+    document.getElementById("btnEditar").style.display = "none";
+    document.getElementById("btnGuardar").style.display = "block";
+    document.getElementById("nom").focus();
+    document.getElementById("codi").readOnly = false;
+}
+
+</script>
+</body>
+</html>
