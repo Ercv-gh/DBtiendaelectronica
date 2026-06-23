@@ -39,6 +39,8 @@ catch(mysqli_sql_exception $error){
     echo "<p>Problemas con la conexión</p>";
     echo $error->getMessage();
 }
+include("../includes/botones.php");
+
 
 ?>
 </body>
