@@ -9,42 +9,24 @@
 </head>
 
 <body>
-    <?php
-    // mysqli_report(MYSQLI_REPORT_OFF);
-    //  /** @var mysqli $conexion*/
-    // //conectarse a la red
-    // include ("../db/conne.php");
-
-    // //1. Recoger los datos del form
-    // $id= $_POST['fid'];
-
-    // //2. Defino la variable y hago el select
-    // $consulta= "SELECT * FROM productos WHERE codi= '$id'";
-
-    // //3. Ejecuto la consulta
-    // $registro= mysqli_query($conexion, $consulta) or die("<p>Problemas con el select");
-    // if($reg=mysqli_fetch_array($registro)){
-    //      echo "<p> Nombre:$reg[nom]</p>";
-    //     echo "<p> Precio:$reg[preu] €</p>";
-    // }else {
-    // // echo "<p>No exite ese producto</p>";
-    // }
-
-    // 
-    ?>
-
-    <?php
+<?php
     mysqli_report(MYSQLI_REPORT_OFF);
 
     /** @var mysqli $conexion */
     include("../db/conne.php");
 
-    $id = $_POST['fid'];
+    $id = filter_input(INPUT_POST, 'fid', FILTER_VALIDATE_INT);
 
-    $consulta = "SELECT * FROM productos WHERE codi='$id'";
-
-    $registro = mysqli_query($conexion, $consulta)
-        or die("<p>Problemas con el select</p>");
+    if ($id === null || $id === false || $id <= 0) {
+        http_response_code(422);
+        exit("<p>Código de producto no válido.</p>");
+    }
+    $stmt = mysqli_prepare($conexion, "SELECT * FROM productos WHERE codi = ?");
+    if (!$stmt || !mysqli_stmt_bind_param($stmt, "i", $id) || !mysqli_stmt_execute($stmt)) {
+        http_response_code(500);
+        exit("<p>No se ha podido consultar el producto.</p>");
+    }
+    $registro = mysqli_stmt_get_result($stmt);
 
     echo "<main>";
 
@@ -56,7 +38,7 @@
         echo "<input
         type='hidden'
         name='fcodi'
-        value='" . $reg['codi'] . "'>";
+        value='" . htmlspecialchars((string)$reg['codi'], ENT_QUOTES, 'UTF-8') . "'>";
 
         echo "<div class='grupoFormulario'>";
 
@@ -66,7 +48,7 @@
             id='nom'
             type='text'
             name='fnom'
-            value='" . $reg['nom'] . "'
+            value='" . htmlspecialchars((string)$reg['nom'], ENT_QUOTES, 'UTF-8') . "'
             readonly>";
 
         echo "</div>";
@@ -79,7 +61,7 @@
             id='categoria'
             type='text'
             name='fcategoria'
-            value='" . $reg['categoria'] . "'
+            value='" . htmlspecialchars((string)$reg['categoria'], ENT_QUOTES, 'UTF-8') . "'
             readonly>";
 
         echo "</div>";
@@ -92,7 +74,7 @@
             id='marca'
             type='text'
             name='fmarca'
-            value='" . $reg['marca'] . "'
+            value='" . htmlspecialchars((string)$reg['marca'], ENT_QUOTES, 'UTF-8') . "'
             readonly>";
 
         echo "</div>";
@@ -106,7 +88,7 @@
             type='number'
             step='0.01'
             name='fpreu'
-            value='" . $reg['preu'] . "'
+            value='" . htmlspecialchars((string)$reg['preu'], ENT_QUOTES, 'UTF-8') . "'
             readonly>";
 
         echo "</div>";
@@ -136,6 +118,7 @@
     include("../includes/botones.php");
 
     echo "</main>";
+    mysqli_stmt_close($stmt);
     mysqli_close($conexion);
     ?>
 
