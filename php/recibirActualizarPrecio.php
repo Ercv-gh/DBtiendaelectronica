@@ -13,9 +13,17 @@
     /** @var mysqli $conexion */
     include("../db/conne.php");
 
-    $codi = $_POST['fcodi'];
-    $consulta = "SELECT * FROM productos WHERE codi='$codi'";
-    $registro = mysqli_query($conexion, $consulta);
+    $codi = filter_input(INPUT_POST, 'fcodi', FILTER_VALIDATE_INT);
+    if ($codi === null || $codi === false || $codi <= 0) {
+        http_response_code(422);
+        exit("<p>Código de producto no válido.</p>");
+    }
+    $stmt = mysqli_prepare($conexion, "SELECT * FROM productos WHERE codi = ?");
+    if (!$stmt || !mysqli_stmt_bind_param($stmt, "i", $codi) || !mysqli_stmt_execute($stmt)) {
+        http_response_code(500);
+        exit("<p>No se ha podido consultar el producto.</p>");
+    }
+    $registro = mysqli_stmt_get_result($stmt);
 
     echo "<main>";
     if ($reg = mysqli_fetch_array($registro)) {
@@ -28,13 +36,13 @@
         echo "<input
                 type='hidden'
                 name='fcodi'
-                value='" . $reg['codi'] . "'>";
+                value='" . htmlspecialchars((string)$reg['codi'], ENT_QUOTES, 'UTF-8') . "'>";
 
         echo "<div class='grupoFormulario'>";
         echo "<label>Nombre</label>";
         echo "<input
                     type='text'
-                    value='" . $reg['nom'] . "'
+                    value='" . htmlspecialchars((string)$reg['nom'], ENT_QUOTES, 'UTF-8') . "'
                     readonly>";
         echo "</div>";
 
@@ -42,7 +50,7 @@
         echo "<label>Categoría</label>";
         echo "<input
                     type='text'
-                    value='" . $reg['categoria'] . "'
+                    value='" . htmlspecialchars((string)$reg['categoria'], ENT_QUOTES, 'UTF-8') . "'
                     readonly>";
         echo "</div>";
 
@@ -52,7 +60,7 @@
                     type='number'
                     name='fpreu'
                     step='0.01'
-                    value='" . $reg['preu'] . "'
+                    value='" . htmlspecialchars((string)$reg['preu'], ENT_QUOTES, 'UTF-8') . "'
                     required>";
         echo "</div>";
 
@@ -70,6 +78,7 @@
 
     echo "</main>";
 
+    mysqli_stmt_close($stmt);
     mysqli_close($conexion);
     ?>
 
