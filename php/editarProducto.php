@@ -14,15 +14,17 @@
     /** @var mysqli $conexion */
 
     include("../db/conne.php");
-    $codi = $_POST['fcodi'];
-    $nom = $_POST['fnom'];
-    $categoria = $_POST['fcategoria'];
-    $marca = $_POST['fmarca'];
-    $preu = $_POST['fpreu'];
-    $consulta = "UPDATE productos SET nom='$nom',categoria='$categoria',marca='$marca',
-    preu='$preu' WHERE codi='$codi'";
-
-    $resultado = mysqli_query($conexion, $consulta);
+    $codi = filter_input(INPUT_POST, 'fcodi', FILTER_VALIDATE_INT);
+    $nom = trim($_POST['fnom'] ?? '');
+    $categoria = trim($_POST['fcategoria'] ?? '');
+    $marca = trim($_POST['fmarca'] ?? '');
+    $preu = filter_input(INPUT_POST, 'fpreu', FILTER_VALIDATE_FLOAT);
+    if (!$codi || $nom === '' || $categoria === '' || $marca === '' || $preu === false || $preu === null || $preu < 0) {
+        http_response_code(422);
+        exit("<p>Datos no válidos.</p>");
+    }
+    $stmt = mysqli_prepare($conexion, "UPDATE productos SET nom = ?, categoria = ?, marca = ?, preu = ? WHERE codi = ?");
+    $resultado = $stmt && mysqli_stmt_bind_param($stmt, "sssdi", $nom, $categoria, $marca, $preu, $codi) && mysqli_stmt_execute($stmt);
 
     echo "<main>";
 
@@ -48,6 +50,7 @@
 
     echo "</main>";
 
+    if ($stmt) mysqli_stmt_close($stmt);
     mysqli_close($conexion);
 
     ?>
