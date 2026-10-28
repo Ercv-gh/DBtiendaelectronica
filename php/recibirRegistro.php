@@ -1,47 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recibir Registro</title>
-    <link rel="stylesheet" href="../css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registrar producto</title>
+<link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <?php 
- /** @var mysqli $conexion*/
-include ("../db/conne.php");
-//1. Recoger los datos del formulario
-$nombreProducto= $_REQUEST['fnom'];
-$categoria= $_REQUEST['fcategoria'];
-$marca= $_REQUEST['fmarca'];
-$descripcion= $_REQUEST['fdescripcio'];
-$precio= $_REQUEST['fpreu'];
-$cantidad= $_REQUEST['fquantitat'];
-
-
-//2. Inserto los datos y defino la variable donde las recojo
-$registro= "INSERT INTO productos (nom, descripcio, preu, quantitat, categoria, marca) VALUES ('$nombreProducto', '$descripcion', '$precio', '$cantidad', '$categoria', '$marca')";
-echo $registro;
-
-try{
-
-//3. Ejecuto la consulta
-mysqli_query($conexion, $registro);
-    if(mysqli_query($conexion, $registro)){
-        echo "Producto insertado correctamente";
-    }else{
-        echo "Error al insertar";
+<main>
+<?php
+require_once "../db/conne.php";
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo "<p>Método no permitido.</p>";
+} else {
+    $nombre = trim($_POST['fnom'] ?? '');
+    $categoria = trim($_POST['fcategoria'] ?? '');
+    $marca = trim($_POST['fmarca'] ?? '');
+    $descripcion = trim($_POST['fdescripcio'] ?? '');
+    $precio = filter_var($_POST['fpreu'] ?? null, FILTER_VALIDATE_FLOAT);
+    $cantidad = filter_var($_POST['fquantitat'] ?? null, FILTER_VALIDATE_INT);
+    if ($nombre === '' || $categoria === '' || $marca === '' || $precio === false ||
+        $cantidad === false || $precio < 0 || $cantidad < 0) {
+        http_response_code(422);
+        echo "<p>Comprueba los datos del formulario.</p>";
+    } else {
+        $stmt = mysqli_prepare($conexion, "INSERT INTO productos (nom, descripcio, preu, quantitat, categoria, marca) VALUES (?, ?, ?, ?, ?, ?)");
+        if ($stmt && mysqli_stmt_bind_param($stmt, "ssdiss", $nombre, $descripcion, $precio, $cantidad, $categoria, $marca) && mysqli_stmt_execute($stmt)) {
+            echo "<p>Producto insertado correctamente.</p>";
+        } else {
+            http_response_code(500);
+            error_log('Error al registrar producto: ' . mysqli_error($conexion));
+            echo "<p>No se ha podido registrar el producto.</p>";
+        }
+        if ($stmt) mysqli_stmt_close($stmt);
     }
-
+}
 mysqli_close($conexion);
-}
-catch(mysqli_sql_exception $error){
-    echo "<p>Problemas con la conexión</p>";
-    echo $error->getMessage();
-}
-include("../includes/botones.php");
-
-
+include "../includes/botones.php";
 ?>
+</main>
 </body>
 </html>
