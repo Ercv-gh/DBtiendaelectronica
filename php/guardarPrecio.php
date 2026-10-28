@@ -13,11 +13,14 @@
     /** @var mysqli $conexion */
     include("../db/conne.php");
 
-    $codi = $_POST['fcodi'];
-    $preu = $_POST['fpreu'];
-    $consulta = " UPDATE productos SET preu='$preu' WHERE codi='$codi'";
-
-    $resultado = mysqli_query($conexion, $consulta);
+    $codi = filter_input(INPUT_POST, 'fcodi', FILTER_VALIDATE_INT);
+    $preu = filter_input(INPUT_POST, 'fpreu', FILTER_VALIDATE_FLOAT);
+    if (!$codi || $preu === false || $preu === null || $preu < 0) {
+        http_response_code(422);
+        exit("<p>Datos no válidos.</p>");
+    }
+    $stmt = mysqli_prepare($conexion, "UPDATE productos SET preu = ? WHERE codi = ?");
+    $resultado = $stmt && mysqli_stmt_bind_param($stmt, "di", $preu, $codi) && mysqli_stmt_execute($stmt);
     echo "<main>";
     echo "<div class='contenedor'>";
     if ($resultado) {
@@ -40,6 +43,7 @@
     include("../includes/botones.php");
     echo "</main>";
 
+    if ($stmt) mysqli_stmt_close($stmt);
     mysqli_close($conexion);
     ?>
 
